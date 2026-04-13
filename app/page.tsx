@@ -33,9 +33,17 @@ export default function Home() {
     setEmotion((prev) => (prev === "DELIGHTED" ? "HAPPY" : "DELIGHTED"));
   };
 
+  const toggleHappyAngry = () => {
+    setEmotion((prev) => (prev === "ANGRY" ? "HAPPY" : "ANGRY"));
+  };
+
+  const toggleHappySad = () => {
+    setEmotion((prev) => (prev === "SAD" ? "HAPPY" : "SAD"));
+  };
+
   return (
     <main
-      className="min-h-screen w-full flex items-stretch relative pb-20"
+      className="min-h-screen w-full flex items-stretch relative pb-28"
       style={{ background: "#FFC107" }}
     >
       {/* Left — Face */}
@@ -51,7 +59,37 @@ export default function Home() {
         <Chat onEmotionChange={setEmotion} onTalkingChange={setIsTalking} />
       </div>
 
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-5 z-20 flex gap-3">
+      <div className="fixed left-1/2 -translate-x-1/2 bottom-8 z-30 flex gap-3">
+        <button
+          type="button"
+          onClick={toggleHappySad}
+          className="px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          style={{
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "11px",
+            background: "#4a4a4a",
+            color: "#fff",
+            border: "3px solid #333",
+          }}
+        >
+          TOGGLE HAPPY/SAD
+        </button>
+
+        <button
+          type="button"
+          onClick={toggleHappyAngry}
+          className="px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          style={{
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "11px",
+            background: "#7f2319",
+            color: "#fff",
+            border: "3px solid #5f1912",
+          }}
+        >
+          TOGGLE HAPPY/ANGRY
+        </button>
+
         <button
           type="button"
           onClick={toggleHappyDelighted}
