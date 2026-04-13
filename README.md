@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# In Your Face (IYF)
 
-## Getting Started
+A chat app where a huge animated character face reacts to your conversation in real time. Built with Next.js + Claude API, styled in pixel/retro aesthetic.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Animated SVG face with 8 emotions: NEUTRAL, HAPPY, SAD, ANGRY, SURPRISED, EXCITED, CONFUSED, THINKING
+- Talking jaw animation while the AI streams its response
+- Eye blinking
+- Streaming responses via Claude claude-sonnet-4-6
+- Press Start 2P pixel font
+- Deploys to Vercel in one click
+
+## Setup
+
+1. Clone the repo
+2. Install dependencies: `npm install`
+3. Copy `.env.example` to `.env.local` and add your Anthropic API key:
+   ```
+   ANTHROPIC_API_KEY=sk-ant-...
+   ```
+4. Run dev server: `npm run dev`
+5. Open [http://localhost:3000](http://localhost:3000)
+
+## Deploy to Vercel
+
+Push to GitHub, then import the repo on [vercel.com](https://vercel.com). Set the `ANTHROPIC_API_KEY` environment variable in the Vercel project settings.
+
+## Project Structure
+
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+app/
+  page.tsx          # Main layout (face + chat side by side)
+  api/chat/route.ts # Streaming Claude API route
+components/
+  Face.tsx          # Animated SVG face
+  Chat.tsx          # Chat UI with SSE streaming
+```
