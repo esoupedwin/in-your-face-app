@@ -1,5 +1,7 @@
 # In Your Face (IYF)
 
+<img width="746" height="662" alt="image" src="https://github.com/user-attachments/assets/a308c431-a331-464f-9257-17578e01e113" />
+
 A chat app where a huge animated character face reacts to your conversation in real time. Built with Next.js + Claude API, styled in a pixel/retro aesthetic.
 
 ## Features
