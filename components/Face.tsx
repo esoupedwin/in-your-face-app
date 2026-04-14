@@ -1,17 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-
-export type Emotion =
-  | "NEUTRAL"
-  | "HAPPY"
-  | "DELIGHTED"
-  | "PISSED"
-  | "SAD"
-  | "ANGRY"
-  | "SURPRISED"
-  | "EXCITED"
-  | "CONFUSED"
-  | "THINKING";
+import {
+  FACE_ANIMATION,
+  FACE_EMOTION_CONFIGS,
+  FACE_LAYOUT,
+  PISSED_FEATURES,
+  type Emotion,
+} from "./face.config";
+export type { Emotion } from "./face.config";
 
 interface FaceProps {
   emotion: Emotion;
@@ -22,278 +18,8 @@ function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
-// Emotion configs: eyebrows, eyes, mouth shape
-const configs: Record<
-  Emotion,
-  {
-    leftBrow: { x: number; y: number; rotate: number };
-    rightBrow: { x: number; y: number; rotate: number };
-    leftPupil: { x: number; y: number };
-    rightPupil: { x: number; y: number };
-    leftEyeScale: number;
-    rightEyeScale: number;
-    mouthOpen: number; // 0-1
-    mouthWidth: number;
-    mouthSmile: number; // positive = smile, negative = frown
-    color: string;
-    mouthMode: "open" | "smile" | "delighted" | "sad" | "pissed";
-    animation: {
-      blinkMinMs: number;
-      blinkJitterMs: number;
-      gazeMinMs: number;
-      gazeJitterMs: number;
-      gazeXMin: number;
-      gazeXMax: number;
-      gazeYMax: number;
-      expressionSpeed: number;
-      expressionAmount: number;
-    };
-  }
-> = {
-  NEUTRAL: {
-    leftBrow: { x: 0, y: -4, rotate: -8 },
-    rightBrow: { x: 0, y: -4, rotate: 12 },
-    leftPupil: { x: 0, y: 0 },
-    rightPupil: { x: 0, y: 0 },
-    leftEyeScale: 1,
-    rightEyeScale: 1,
-    mouthOpen: 0.44,
-    mouthWidth: 1,
-    mouthSmile: 0,
-    color: "#FFC107",
-    mouthMode: "open",
-    animation: {
-      blinkMinMs: 850,
-      blinkJitterMs: 1800,
-      gazeMinMs: 900,
-      gazeJitterMs: 2200,
-      gazeXMin: 6,
-      gazeXMax: 14,
-      gazeYMax: 3,
-      expressionSpeed: 0.8,
-      expressionAmount: 1,
-    },
-  },
-  HAPPY: {
-    leftBrow: { x: -2, y: -6, rotate: -8 },
-    rightBrow: { x: 2, y: -6, rotate: 10 },
-    leftPupil: { x: 0, y: -5 },
-    rightPupil: { x: 0, y: -5 },
-    leftEyeScale: 1.06,
-    rightEyeScale: 1.06,
-    mouthOpen: 0.35,
-    mouthWidth: 0.95,
-    mouthSmile: 1.2,
-    color: "#FFD740",
-    mouthMode: "smile",
-    animation: {
-      blinkMinMs: 1200,
-      blinkJitterMs: 1600,
-      gazeMinMs: 700,
-      gazeJitterMs: 1700,
-      gazeXMin: 5,
-      gazeXMax: 11,
-      gazeYMax: 4,
-      expressionSpeed: 2,
-      expressionAmount: 1.8,
-    },
-  },
-  DELIGHTED: {
-    leftBrow: { x: -1, y: -7, rotate: -10 },
-    rightBrow: { x: 1, y: -7, rotate: 12 },
-    leftPupil: { x: 0, y: -2 },
-    rightPupil: { x: 0, y: -2 },
-    leftEyeScale: 1.03,
-    rightEyeScale: 1.03,
-    mouthOpen: 0.74,
-    mouthWidth: 1.05,
-    mouthSmile: 0.9,
-    color: "#FFD740",
-    mouthMode: "delighted",
-    animation: {
-      blinkMinMs: 1200,
-      blinkJitterMs: 1400,
-      gazeMinMs: 650,
-      gazeJitterMs: 1500,
-      gazeXMin: 6,
-      gazeXMax: 12,
-      gazeYMax: 4,
-      expressionSpeed: 2.2,
-      expressionAmount: 2,
-    },
-  },
-  PISSED: {
-    leftBrow: { x: 3, y: 10, rotate: 14 },
-    rightBrow: { x: -6, y: 9, rotate: -14 },
-    leftPupil: { x: 0, y: 1 },
-    rightPupil: { x: 0, y: 1 },
-    leftEyeScale: 1.02,
-    rightEyeScale: 1.02,
-    mouthOpen: 0.16,
-    mouthWidth: 0.92,
-    mouthSmile: -0.9,
-    color: "#FFB300",
-    mouthMode: "pissed",
-    animation: {
-      blinkMinMs: 820,
-      blinkJitterMs: 1200,
-      gazeMinMs: 760,
-      gazeJitterMs: 1300,
-      gazeXMin: 4,
-      gazeXMax: 9,
-      gazeYMax: 2,
-      expressionSpeed: 1.5,
-      expressionAmount: 1.1,
-    },
-  },
-  SAD: {
-    leftBrow: { x: -4, y: -2, rotate: 30 },
-    rightBrow: { x: 4, y: -2, rotate: -30 },
-    leftPupil: { x: -2, y: 8 },
-    rightPupil: { x: 2, y: 8 },
-    leftEyeScale: 1.06,
-    rightEyeScale: 1.06,
-    mouthOpen: 0.2,
-    mouthWidth: 0.85,
-    mouthSmile: -1.2,
-    color: "#FFA726",
-    mouthMode: "sad",
-    animation: {
-      blinkMinMs: 900,
-      blinkJitterMs: 1600,
-      gazeMinMs: 1000,
-      gazeJitterMs: 2400,
-      gazeXMin: 4,
-      gazeXMax: 10,
-      gazeYMax: 2,
-      expressionSpeed: 0.7,
-      expressionAmount: 0.8,
-    },
-  },
-  ANGRY: {
-    leftBrow: { x: 8, y: -2, rotate: 18 },
-    rightBrow: { x: -8, y: -2, rotate: -18 },
-    leftPupil: { x: 0, y: 0 },
-    rightPupil: { x: 0, y: 0 },
-    leftEyeScale: 0.98,
-    rightEyeScale: 0.98,
-    mouthOpen: 0.72,
-    mouthWidth: 1.02,
-    mouthSmile: 0.02,
-    color: "#FF8F00",
-    mouthMode: "open",
-    animation: {
-      blinkMinMs: 700,
-      blinkJitterMs: 1200,
-      gazeMinMs: 700,
-      gazeJitterMs: 1600,
-      gazeXMin: 7,
-      gazeXMax: 14,
-      gazeYMax: 1.5,
-      expressionSpeed: 1.1,
-      expressionAmount: 1.2,
-    },
-  },
-  SURPRISED: {
-    leftBrow: { x: 0, y: -15, rotate: 0 },
-    rightBrow: { x: 0, y: -15, rotate: 0 },
-    leftPupil: { x: 0, y: 0 },
-    rightPupil: { x: 0, y: 0 },
-    leftEyeScale: 1.3,
-    rightEyeScale: 1.3,
-    mouthOpen: 0.9,
-    mouthWidth: 0.85,
-    mouthSmile: 0,
-    color: "#FFCA28",
-    mouthMode: "open",
-    animation: {
-      blinkMinMs: 1500,
-      blinkJitterMs: 2200,
-      gazeMinMs: 1200,
-      gazeJitterMs: 2500,
-      gazeXMin: 3,
-      gazeXMax: 8,
-      gazeYMax: 2,
-      expressionSpeed: 0.5,
-      expressionAmount: 0.6,
-    },
-  },
-  EXCITED: {
-    leftBrow: { x: 0, y: -12, rotate: -8 },
-    rightBrow: { x: 0, y: -12, rotate: 8 },
-    leftPupil: { x: 0, y: -8 },
-    rightPupil: { x: 0, y: -8 },
-    leftEyeScale: 1.2,
-    rightEyeScale: 1.2,
-    mouthOpen: 0.8,
-    mouthWidth: 1.2,
-    mouthSmile: 1,
-    color: "#FFD740",
-    mouthMode: "open",
-    animation: {
-      blinkMinMs: 900,
-      blinkJitterMs: 1300,
-      gazeMinMs: 650,
-      gazeJitterMs: 1100,
-      gazeXMin: 5,
-      gazeXMax: 12,
-      gazeYMax: 4,
-      expressionSpeed: 1.7,
-      expressionAmount: 1.5,
-    },
-  },
-  CONFUSED: {
-    leftBrow: { x: 0, y: -10, rotate: -15 },
-    rightBrow: { x: 0, y: 5, rotate: 10 },
-    leftPupil: { x: -5, y: -5 },
-    rightPupil: { x: 5, y: 5 },
-    leftEyeScale: 1.1,
-    rightEyeScale: 0.9,
-    mouthOpen: 0.35,
-    mouthWidth: 0.9,
-    mouthSmile: -0.3,
-    color: "#FFC107",
-    mouthMode: "open",
-    animation: {
-      blinkMinMs: 900,
-      blinkJitterMs: 1800,
-      gazeMinMs: 750,
-      gazeJitterMs: 1400,
-      gazeXMin: 5,
-      gazeXMax: 11,
-      gazeYMax: 4,
-      expressionSpeed: 1.3,
-      expressionAmount: 1.1,
-    },
-  },
-  THINKING: {
-    leftBrow: { x: 0, y: -5, rotate: -10 },
-    rightBrow: { x: 0, y: -14, rotate: 12 },
-    leftPupil: { x: -8, y: -10 },
-    rightPupil: { x: -8, y: -10 },
-    leftEyeScale: 0.95,
-    rightEyeScale: 1.05,
-    mouthOpen: 0.1,
-    mouthWidth: 0.8,
-    mouthSmile: 0.2,
-    color: "#FFC107",
-    mouthMode: "open",
-    animation: {
-      blinkMinMs: 1000,
-      blinkJitterMs: 1700,
-      gazeMinMs: 800,
-      gazeJitterMs: 1500,
-      gazeXMin: 4,
-      gazeXMax: 10,
-      gazeYMax: 3,
-      expressionSpeed: 0.8,
-      expressionAmount: 1,
-    },
-  },
-};
-
 export default function Face({ emotion, isTalking }: FaceProps) {
-  const cfg = configs[emotion];
+  const cfg = FACE_EMOTION_CONFIGS[emotion];
   const [talkPhase, setTalkPhase] = useState(0);
   const [blinkAmount, setBlinkAmount] = useState(0);
   const [gaze, setGaze] = useState({ x: 0, y: 0 });
@@ -305,24 +31,27 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     rightRotate: 0,
   });
   const [expressionPhase, setExpressionPhase] = useState(0);
+  const [pissedShiver, setPissedShiver] = useState({ x: 0, y: 0, rotate: 0 });
   const [happyDelightBlend, setHappyDelightBlend] = useState(
     emotion === "DELIGHTED" ? 1 : 0,
   );
   const [happyAngryBlend, setHappyAngryBlend] = useState(emotion === "ANGRY" ? 1 : 0);
   const [happySadBlend, setHappySadBlend] = useState(emotion === "SAD" ? 1 : 0);
   const [happyPissedBlend, setHappyPissedBlend] = useState(emotion === "PISSED" ? 1 : 0);
-  const [delightedJaw, setDelightedJaw] = useState(0.55);
+  const [delightedJaw, setDelightedJaw] = useState(FACE_ANIMATION.delightedJaw.idleValue);
   const happyDelightBlendRef = useRef(emotion === "DELIGHTED" ? 1 : 0);
   const happyAngryBlendRef = useRef(emotion === "ANGRY" ? 1 : 0);
   const happySadBlendRef = useRef(emotion === "SAD" ? 1 : 0);
   const happyPissedBlendRef = useRef(emotion === "PISSED" ? 1 : 0);
-  const delightedJawRef = useRef(0.55);
-  const delightedJawTargetRef = useRef(0.55);
+  const delightedJawRef = useRef(FACE_ANIMATION.delightedJaw.idleValue);
+  const delightedJawTargetRef = useRef(FACE_ANIMATION.delightedJaw.idleValue);
   const animRef = useRef<number | null>(null);
   const talkRef = useRef<number | null>(null);
   const blinkRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blinkAnimRef = useRef<number | null>(null);
   const expressionAnimRef = useRef<number | null>(null);
+  const pissedShiverAnimRef = useRef<number | null>(null);
+  const pissedShiverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const happyDelightAnimRef = useRef<number | null>(null);
   const happyAngryAnimRef = useRef<number | null>(null);
   const happySadAnimRef = useRef<number | null>(null);
@@ -353,9 +82,12 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     if (isTalking) {
       let t = 0;
       const animate = () => {
-        t += 0.18;
+        t += FACE_ANIMATION.talking.phaseStep;
         setTalkPhase(Math.sin(t));
-        setBounce(Math.sin(t * 0.5) * 3);
+        setBounce(
+          Math.sin(t * FACE_ANIMATION.talking.bounceFrequency) *
+            FACE_ANIMATION.talking.bounceAmplitude,
+        );
         talkRef.current = requestAnimationFrame(animate);
       };
       talkRef.current = requestAnimationFrame(animate);
@@ -379,7 +111,9 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     const easeInOut = (t: number) => 0.5 - Math.cos(Math.PI * t) * 0.5;
 
     const runBlink = () => {
-      const duration = 140 + Math.random() * 120;
+      const duration =
+        FACE_ANIMATION.blink.durationBaseMs +
+        Math.random() * FACE_ANIMATION.blink.durationJitterMs;
       const start = performance.now();
 
       const animate = (now: number) => {
@@ -493,7 +227,10 @@ export default function Face({ emotion, isTalking }: FaceProps) {
 
     const start = performance.now();
     const from = happyDelightBlendRef.current;
-    const duration = target > from ? 420 : 560;
+    const duration =
+      target > from
+        ? FACE_ANIMATION.blend.happyDelightedEnterMs
+        : FACE_ANIMATION.blend.happyDelightedExitMs;
     const delta = target - from;
 
     const easeOutBack = (t: number) => {
@@ -527,6 +264,88 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     };
   }, [emotion]);
 
+  // Intermittent anger shiver when pissed.
+  useEffect(() => {
+    let isActive = true;
+
+    const stopShiver = () => {
+      if (pissedShiverTimerRef.current) clearTimeout(pissedShiverTimerRef.current);
+      if (pissedShiverAnimRef.current) cancelAnimationFrame(pissedShiverAnimRef.current);
+      pissedShiverAnimRef.current = requestAnimationFrame(() => {
+        setPissedShiver({ x: 0, y: 0, rotate: 0 });
+      });
+    };
+
+    if (emotion !== "PISSED") {
+      stopShiver();
+      return () => {
+        if (pissedShiverTimerRef.current) clearTimeout(pissedShiverTimerRef.current);
+        if (pissedShiverAnimRef.current) cancelAnimationFrame(pissedShiverAnimRef.current);
+      };
+    }
+
+    const scheduleNext = () => {
+      const delay =
+        FACE_ANIMATION.shiver.intervalBaseMs +
+        Math.random() * FACE_ANIMATION.shiver.intervalJitterMs;
+      pissedShiverTimerRef.current = setTimeout(() => {
+        if (!isActive) return;
+        runShiverBurst();
+      }, delay);
+    };
+
+    const runShiverBurst = () => {
+      const start = performance.now();
+      const duration =
+        FACE_ANIMATION.shiver.durationBaseMs +
+        Math.random() * FACE_ANIMATION.shiver.durationJitterMs;
+      const amplitude =
+        FACE_ANIMATION.shiver.amplitudeBase +
+        Math.random() * FACE_ANIMATION.shiver.amplitudeJitter;
+      const rotationAmplitude =
+        FACE_ANIMATION.shiver.rotateAmplitudeBase +
+        Math.random() * FACE_ANIMATION.shiver.rotateAmplitudeJitter;
+      const cycles =
+        FACE_ANIMATION.shiver.cyclesBase + Math.random() * FACE_ANIMATION.shiver.cyclesJitter;
+      const phaseOffset = Math.random() * Math.PI * 2;
+
+      const animate = (now: number) => {
+        if (!isActive) return;
+        const p = Math.min((now - start) / duration, 1);
+        const envelope = Math.pow(Math.sin(Math.PI * p), 1.08);
+        // Smoother S-curve to drag acceleration/deceleration (slow -> fast -> slow).
+        const speedCurve = p * p * p * (p * (6 * p - 15) + 10);
+        const wave = speedCurve * cycles * Math.PI * 2 + phaseOffset;
+        const rapid = Math.sin(wave);
+        const rapidAlt = Math.cos(wave * 0.92 + 0.6);
+
+        setPissedShiver({
+          x: rapid * amplitude * envelope,
+          y: rapidAlt * amplitude * FACE_ANIMATION.shiver.yScale * envelope,
+          rotate: rapid * rotationAmplitude * envelope,
+        });
+
+        if (p < 1) {
+          pissedShiverAnimRef.current = requestAnimationFrame(animate);
+          return;
+        }
+
+        setPissedShiver({ x: 0, y: 0, rotate: 0 });
+        scheduleNext();
+      };
+
+      pissedShiverAnimRef.current = requestAnimationFrame(animate);
+    };
+
+    scheduleNext();
+
+    return () => {
+      isActive = false;
+      if (pissedShiverTimerRef.current) clearTimeout(pissedShiverTimerRef.current);
+      if (pissedShiverAnimRef.current) cancelAnimationFrame(pissedShiverAnimRef.current);
+    };
+  }, [emotion]);
+
   // Smoothly transition between HAPPY and ANGRY.
   useEffect(() => {
     const target = emotion === "ANGRY" ? 1 : 0;
@@ -542,7 +361,7 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     }
 
     const start = performance.now();
-    const duration = 460;
+    const duration = FACE_ANIMATION.blend.happyAngryMs;
     const from = happyAngryBlendRef.current;
     const delta = target - from;
 
@@ -591,7 +410,7 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     }
 
     const start = performance.now();
-    const duration = 420;
+    const duration = FACE_ANIMATION.blend.happySadMs;
     const from = happySadBlendRef.current;
     const delta = target - from;
     const easeInOut = (t: number) => 0.5 - Math.cos(Math.PI * t) * 0.5;
@@ -633,7 +452,10 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     }
 
     const start = performance.now();
-    const duration = target > happyPissedBlendRef.current ? 500 : 560;
+    const duration =
+      target > happyPissedBlendRef.current
+        ? FACE_ANIMATION.blend.happyPissedEnterMs
+        : FACE_ANIMATION.blend.happyPissedExitMs;
     const from = happyPissedBlendRef.current;
     const delta = target - from;
     const easeInOut = (t: number) => 0.5 - Math.cos(Math.PI * t) * 0.5;
@@ -673,11 +495,15 @@ export default function Face({ emotion, isTalking }: FaceProps) {
 
     const scheduleTarget = () => {
       if (!isActive) return;
-      const delay = 420 + Math.random() * 1400;
+      const delay =
+        FACE_ANIMATION.delightedJaw.intervalBaseMs +
+        Math.random() * FACE_ANIMATION.delightedJaw.intervalJitterMs;
       delightedJawTimerRef.current = setTimeout(() => {
         if (!isActive) return;
         // Wide-open to small-close range for lively delighted expression.
-        delightedJawTargetRef.current = 0.22 + Math.random() * 0.88;
+        delightedJawTargetRef.current =
+          FACE_ANIMATION.delightedJaw.targetBase +
+          Math.random() * FACE_ANIMATION.delightedJaw.targetRange;
         scheduleTarget();
       }, delay);
     };
@@ -685,12 +511,14 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     if (isDelighted) {
       scheduleTarget();
     } else {
-      delightedJawTargetRef.current = 0.55;
+      delightedJawTargetRef.current = FACE_ANIMATION.delightedJaw.idleValue;
     }
 
     const animate = () => {
       if (!isActive) return;
-      const smoothing = isDelighted ? 0.09 : 0.14;
+      const smoothing = isDelighted
+        ? FACE_ANIMATION.delightedJaw.activeSmoothing
+        : FACE_ANIMATION.delightedJaw.inactiveSmoothing;
       delightedJawRef.current +=
         (delightedJawTargetRef.current - delightedJawRef.current) * smoothing;
       setDelightedJaw(delightedJawRef.current);
@@ -711,10 +539,12 @@ export default function Face({ emotion, isTalking }: FaceProps) {
     let isActive = true;
 
     const scheduleNextTarget = () => {
-      const delay = 1400 + Math.random() * 2800;
+      const delay =
+        FACE_ANIMATION.browIdle.intervalBaseMs +
+        Math.random() * FACE_ANIMATION.browIdle.intervalJitterMs;
       browTimerRef.current = setTimeout(() => {
         if (!isActive) return;
-        const oneBrowLift = Math.random() < 0.3;
+        const oneBrowLift = Math.random() < FACE_ANIMATION.browIdle.oneBrowLiftChance;
         const baseY = (Math.random() * 2 - 1) * 1.8;
         const asymY = oneBrowLift ? 2 + Math.random() * 2.2 : (Math.random() * 2 - 1) * 1.2;
         const baseR = (Math.random() * 2 - 1) * 1.7;
@@ -728,7 +558,7 @@ export default function Face({ emotion, isTalking }: FaceProps) {
         };
 
         // Occasionally settle back to neutral for a calmer cadence.
-        if (Math.random() < 0.22) {
+        if (Math.random() < FACE_ANIMATION.browIdle.settleChance) {
           browTargetRef.current = {
             leftY: 0,
             rightY: 0,
@@ -743,12 +573,18 @@ export default function Face({ emotion, isTalking }: FaceProps) {
 
     const animate = () => {
       if (!isActive) return;
-      browRef.current.leftY += (browTargetRef.current.leftY - browRef.current.leftY) * 0.06;
-      browRef.current.rightY += (browTargetRef.current.rightY - browRef.current.rightY) * 0.06;
+      browRef.current.leftY +=
+        (browTargetRef.current.leftY - browRef.current.leftY) *
+        FACE_ANIMATION.browIdle.animateSmoothing;
+      browRef.current.rightY +=
+        (browTargetRef.current.rightY - browRef.current.rightY) *
+        FACE_ANIMATION.browIdle.animateSmoothing;
       browRef.current.leftRotate +=
-        (browTargetRef.current.leftRotate - browRef.current.leftRotate) * 0.06;
+        (browTargetRef.current.leftRotate - browRef.current.leftRotate) *
+        FACE_ANIMATION.browIdle.animateSmoothing;
       browRef.current.rightRotate +=
-        (browTargetRef.current.rightRotate - browRef.current.rightRotate) * 0.06;
+        (browTargetRef.current.rightRotate - browRef.current.rightRotate) *
+        FACE_ANIMATION.browIdle.animateSmoothing;
 
       setBrowIdle({
         leftY: browRef.current.leftY,
@@ -771,15 +607,15 @@ export default function Face({ emotion, isTalking }: FaceProps) {
   }, []);
 
   // SVG dimensions
-  const W = 520;
-  const H = 600;
+  const W = FACE_LAYOUT.width;
+  const H = FACE_LAYOUT.height;
   const cx = W / 2;
 
   // Face positions
-  const leftEyeCx = cx - 125;
-  const rightEyeCx = cx + 125;
-  const eyeCy = 248;
-  const eyeR = 86;
+  const leftEyeCx = cx - FACE_LAYOUT.eyeOffsetX;
+  const rightEyeCx = cx + FACE_LAYOUT.eyeOffsetX;
+  const eyeCy = FACE_LAYOUT.eyeCenterY;
+  const eyeR = FACE_LAYOUT.eyeRadius;
 
   const easeInOutCubic = (t: number) =>
     t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -809,9 +645,9 @@ export default function Face({ emotion, isTalking }: FaceProps) {
   const angryOpenScaleX = (0.98 + angryEase * 0.02) * angryMouthScaleX;
   const angryOpenScaleY = (0.42 + angryEase * 0.58 + angryPop * 0.06) * angryMouthScaleY;
 
-  const happyCfg = configs.HAPPY;
-  const angryCfg = configs.ANGRY;
-  const pissedCfg = configs.PISSED;
+  const happyCfg = FACE_EMOTION_CONFIGS.HAPPY;
+  const angryCfg = FACE_EMOTION_CONFIGS.ANGRY;
+  const pissedCfg = FACE_EMOTION_CONFIGS.PISSED;
   const faceCfg = isHappyAngryFamily && angryBlend > 0.001
     ? {
         ...cfg,
@@ -881,10 +717,10 @@ export default function Face({ emotion, isTalking }: FaceProps) {
   const idleGazeY = isTalking ? 0 : gaze.y;
   const smileShift = faceCfg.mouthSmile * 20;
 
-  const mouthCy = 410;
+  const mouthCy = FACE_LAYOUT.mouthCenterY;
   const mouthW = 248 * faceCfg.mouthWidth;
   const mouthH = Math.max(86, 72 + talkOpen * 98);
-  const mouthLip = 9;
+  const mouthLip = FACE_LAYOUT.mouthLip;
   const mouthInnerW = mouthW - mouthLip * 2;
   const mouthInnerH = mouthH - mouthLip * 2;
   const pupilR = eyeR * 0.8;
@@ -948,6 +784,8 @@ export default function Face({ emotion, isTalking }: FaceProps) {
   const pissedTeethReveal = easeInOutCubic(Math.min(1, Math.max(0, (pissedEase - 0.15) / 0.85)));
   const shouldRenderPissedTeeth = pissedTeethReveal > 0.03;
   const pissedTeethScaleY = 0.2 + pissedTeethReveal * 0.8;
+  const pissedVeinPulse =
+    1 + expressionPhase * PISSED_FEATURES.vein.pulseAmount * pissedEase;
   const happySadStartX = lerp(-92, -112, sadEase);
   const happySadEndX = lerp(92, 112, sadEase);
   const happySadEdgeY = lerp(0, 42, sadEase);
@@ -980,22 +818,28 @@ export default function Face({ emotion, isTalking }: FaceProps) {
   const finalLeftPupilY = clamp(leftPupilY + idleGazeY, -pupilLimitY, pupilLimitY);
   const finalRightPupilY = clamp(rightPupilY + idleGazeY, -pupilLimitY, pupilLimitY);
   const sadMorphLeftPupilX = clamp(
-    pupilBaseX + lerp(configs.HAPPY.leftPupil.x, configs.SAD.leftPupil.x, sadEase) + idleGazeX,
+    pupilBaseX +
+      lerp(FACE_EMOTION_CONFIGS.HAPPY.leftPupil.x, FACE_EMOTION_CONFIGS.SAD.leftPupil.x, sadEase) +
+      idleGazeX,
     -pupilLimitX,
     pupilLimitX,
   );
   const sadMorphRightPupilX = clamp(
-    pupilBaseX + lerp(configs.HAPPY.rightPupil.x, configs.SAD.rightPupil.x, sadEase) + idleGazeX,
+    pupilBaseX +
+      lerp(FACE_EMOTION_CONFIGS.HAPPY.rightPupil.x, FACE_EMOTION_CONFIGS.SAD.rightPupil.x, sadEase) +
+      idleGazeX,
     -pupilLimitX,
     pupilLimitX,
   );
   const sadMorphLeftPupilY = clamp(
-    lerp(configs.HAPPY.leftPupil.y, configs.SAD.leftPupil.y, sadEase) + idleGazeY,
+    lerp(FACE_EMOTION_CONFIGS.HAPPY.leftPupil.y, FACE_EMOTION_CONFIGS.SAD.leftPupil.y, sadEase) +
+      idleGazeY,
     -pupilLimitY,
     pupilLimitY,
   );
   const sadMorphRightPupilY = clamp(
-    lerp(configs.HAPPY.rightPupil.y, configs.SAD.rightPupil.y, sadEase) + idleGazeY,
+    lerp(FACE_EMOTION_CONFIGS.HAPPY.rightPupil.y, FACE_EMOTION_CONFIGS.SAD.rightPupil.y, sadEase) +
+      idleGazeY,
     -pupilLimitY,
     pupilLimitY,
   );
@@ -1019,9 +863,14 @@ export default function Face({ emotion, isTalking }: FaceProps) {
           filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.18))",
         }}
       >
+        <g
+          transform={`translate(${pissedShiver.x} ${pissedShiver.y}) rotate(${pissedShiver.rotate} ${cx} ${H / 2})`}
+        >
         {/* === LEFT EYE === */}
         {isHappySadFamily ? (
-          <g transform={`translate(${leftEyeCx},${eyeCy}) scale(${configs.HAPPY.leftEyeScale})`}>
+          <g
+            transform={`translate(${leftEyeCx},${eyeCy}) scale(${FACE_EMOTION_CONFIGS.HAPPY.leftEyeScale})`}
+          >
             <defs>
               <clipPath id="sad-left-eye-clip">
                 <path
@@ -1086,7 +935,9 @@ export default function Face({ emotion, isTalking }: FaceProps) {
 
         {/* === RIGHT EYE === */}
         {isHappySadFamily ? (
-          <g transform={`translate(${rightEyeCx},${eyeCy}) scale(${configs.HAPPY.rightEyeScale})`}>
+          <g
+            transform={`translate(${rightEyeCx},${eyeCy}) scale(${FACE_EMOTION_CONFIGS.HAPPY.rightEyeScale})`}
+          >
             <defs>
               <clipPath id="sad-right-eye-clip">
                 <path
@@ -1174,9 +1025,12 @@ export default function Face({ emotion, isTalking }: FaceProps) {
         {isHappyPissedFamily && pissedBlend > 0.01 && (
           <g
             transform={`
-              translate(${rightBrowX + 20}, ${rightBrowY - 36 + expressionFloat * 0.35})
-              rotate(${expressionFloat * 0.6})
-              scale(${0.35 + pissedEase * 0.65})
+              translate(
+                ${rightBrowX + PISSED_FEATURES.vein.groupOffsetX},
+                ${rightBrowY + PISSED_FEATURES.vein.groupOffsetY + expressionFloat * PISSED_FEATURES.vein.floatY}
+              )
+              rotate(${expressionFloat * PISSED_FEATURES.vein.rotateByExpression})
+              scale(${(PISSED_FEATURES.vein.baseScale + pissedEase * PISSED_FEATURES.vein.scaleRange) * pissedVeinPulse})
             `}
             fill="none"
             stroke="#d46891"
@@ -1184,8 +1038,11 @@ export default function Face({ emotion, isTalking }: FaceProps) {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            {[45, 135, 225, 315].map((angle) => (
-              <g key={`pissed-vein-${angle}`} transform={`rotate(${angle}) translate(0 -34)`}>
+            {PISSED_FEATURES.vein.angles.map((angle) => (
+              <g
+                key={`pissed-vein-${angle}`}
+                transform={`rotate(${angle}) translate(0 -${PISSED_FEATURES.vein.lobeOffset})`}
+              >
                 <path d="M -16 0 Q 0 14 16 0" />
               </g>
             ))}
@@ -1214,8 +1071,11 @@ export default function Face({ emotion, isTalking }: FaceProps) {
 
               {shouldRenderPissedTeeth && (
                 <g clipPath="url(#pissed-mouth-clip)">
-                  {[-54, -18, 18, 54].map((x) => {
-                    const baseYOffset = Math.abs(x) < 30 ? -10 : -6;
+                  {PISSED_FEATURES.teeth.xPositions.map((x) => {
+                    const baseYOffset =
+                      Math.abs(x) < 30
+                        ? PISSED_FEATURES.teeth.innerYOffset
+                        : PISSED_FEATURES.teeth.outerYOffset;
                     return (
                       <g key={`piss-teeth-${x}`} transform={`translate(${x}, ${baseYOffset}) scale(1 ${pissedTeethScaleY})`}>
                         <path
@@ -1504,6 +1364,7 @@ export default function Face({ emotion, isTalking }: FaceProps) {
               </g>
             </>
           )}
+        </g>
         </g>
       </svg>
     </div>
