@@ -25,3 +25,20 @@ textarea::placeholder {
   color: #b8960a;
   opacity: 1;
 }
+
+.chat-input::placeholder {
+  transition: opacity 180ms ease;
+  opacity: 1;
+}
+
+.chat-input:focus::placeholder {
+  opacity: 0;
+}
+
+.chat-input:focus::-webkit-input-placeholder {
+  opacity: 0;
+}
+
+.chat-input:focus::-moz-placeholder {
+  opacity: 0;
+}

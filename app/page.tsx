@@ -9,6 +9,7 @@ const Face = dynamic(() => import("@/components/Face"), { ssr: false });
 export default function Home() {
   const [emotion, setEmotion] = useState<Emotion>("HAPPY");
   const [isTalking, setIsTalking] = useState(false);
+  const [showDebugButtons, setShowDebugButtons] = useState(false);
   const isMounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -48,7 +49,24 @@ export default function Home() {
         <Face emotion={emotion} isTalking={isTalking} />
       </div>
 
-      <div className="w-full z-30 flex flex-wrap justify-center gap-2 px-3 md:fixed md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:gap-3">
+      <button
+        type="button"
+        onClick={() => setShowDebugButtons((prev) => !prev)}
+        className="fixed left-3 bottom-3 md:left-6 md:bottom-6 z-40 px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+        style={{
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: "10px",
+          background: "#2f2f2f",
+          color: "#fff",
+          border: "3px solid #1f1f1f",
+        }}
+      >
+        {showDebugButtons ? "HIDE TOGGLES" : "SHOW TOGGLES"}
+      </button>
+
+      <div
+        className={`w-full z-30 flex flex-wrap justify-center gap-2 px-3 md:fixed md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:gap-3 ${showDebugButtons ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+      >
         <button
           type="button"
           onClick={toggleHappySad}
@@ -108,7 +126,6 @@ export default function Home() {
         >
           TOGGLE HAPPY/DELIGHTED
         </button>
-
       </div>
 
       {/* Right - Chat */}

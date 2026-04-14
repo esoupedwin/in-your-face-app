@@ -61,3 +61,14 @@ components/
 | EXCITED   | hype, big news, enthusiasm                       |
 | CONFUSED  | unclear questions or contradictions              |
 | THINKING  | pondering, reasoning through something           |
+
+## Memory
+
+Chappie now uses a lightweight persistent memory layer to remember useful user details over time.
+
+- Storage file: `.data/chappie-memory.json`
+- Memory is used as context on future replies (relevance + recency based retrieval)
+- Memory commands in chat:
+  - `/memory show`
+  - `/memory forget <keyword or memory_id>`
+  - `/memory forget all`

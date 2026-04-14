@@ -10,7 +10,7 @@ const pixelFont = Press_Start_2P({
 
 export const metadata: Metadata = {
   title: "In Your Face",
-  description: "Chat with IYF — the most expressive AI face ever",
+  description: "Chat with Chappie - the most expressive AI face ever",
 };
 
 export default function RootLayout({
@@ -24,3 +24,4 @@ export default function RootLayout({
     </html>
   );
 }
+
