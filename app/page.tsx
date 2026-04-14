@@ -1,33 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import Chat from "@/components/Chat";
 import { Emotion } from "@/components/Face";
 
 const Face = dynamic(() => import("@/components/Face"), { ssr: false });
-const emotionOrder: Emotion[] = [
-  "HAPPY",
-  "DELIGHTED",
-  "NEUTRAL",
-  "SAD",
-  "ANGRY",
-  "SURPRISED",
-  "EXCITED",
-  "CONFUSED",
-  "THINKING",
-];
 
 export default function Home() {
   const [emotion, setEmotion] = useState<Emotion>("HAPPY");
   const [isTalking, setIsTalking] = useState(false);
-
-  const swapExpression = () => {
-    setEmotion((prev) => {
-      const index = emotionOrder.indexOf(prev);
-      const nextIndex = index === -1 ? 0 : (index + 1) % emotionOrder.length;
-      return emotionOrder[nextIndex];
-    });
-  };
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const toggleHappyDelighted = () => {
     setEmotion((prev) => (prev === "DELIGHTED" ? "HAPPY" : "DELIGHTED"));
@@ -37,9 +23,17 @@ export default function Home() {
     setEmotion((prev) => (prev === "ANGRY" ? "HAPPY" : "ANGRY"));
   };
 
+  const toggleHappyPissed = () => {
+    setEmotion((prev) => (prev === "PISSED" ? "HAPPY" : "PISSED"));
+  };
+
   const toggleHappySad = () => {
     setEmotion((prev) => (prev === "SAD" ? "HAPPY" : "SAD"));
   };
+
+  if (!isMounted) {
+    return <main className="min-h-screen w-full" style={{ background: "#FFC107" }} />;
+  }
 
   return (
     <main
@@ -87,6 +81,21 @@ export default function Home() {
 
         <button
           type="button"
+          onClick={toggleHappyPissed}
+          className="px-3 md:px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          style={{
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "10px",
+            background: "#7a2f44",
+            color: "#fff",
+            border: "3px solid #5d2433",
+          }}
+        >
+          TOGGLE HAPPY/PISSED
+        </button>
+
+        <button
+          type="button"
           onClick={toggleHappyDelighted}
           className="px-3 md:px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
           style={{
@@ -100,20 +109,6 @@ export default function Home() {
           TOGGLE HAPPY/DELIGHTED
         </button>
 
-        <button
-          type="button"
-          onClick={swapExpression}
-          className="px-4 md:px-6 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
-          style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: "11px",
-            background: "#8B6914",
-            color: "#fff",
-            border: "3px solid #6f530f",
-          }}
-        >
-          SWAP EXPRESSION
-        </button>
       </div>
 
       {/* Right - Chat */}
