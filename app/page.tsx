@@ -43,30 +43,25 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen w-full flex items-stretch relative pb-28"
+      className="min-h-screen w-full flex flex-col md:flex-row items-stretch relative gap-3 pb-6 md:pb-28"
       style={{ background: "#FFC107" }}
     >
-      {/* Left — Face */}
-      <div className="flex-1 flex items-center justify-center p-1" style={{ minWidth: 0 }}>
+      {/* Left - Face */}
+      <div
+        className="w-full md:flex-1 flex items-center justify-center p-1 min-h-[42vh] md:min-h-0"
+        style={{ minWidth: 0 }}
+      >
         <Face emotion={emotion} isTalking={isTalking} />
       </div>
 
-      {/* Right — Chat */}
-      <div
-        className="flex flex-col p-6"
-        style={{ width: "38%", minWidth: 320, maxWidth: 520 }}
-      >
-        <Chat onEmotionChange={setEmotion} onTalkingChange={setIsTalking} />
-      </div>
-
-      <div className="fixed left-1/2 -translate-x-1/2 bottom-8 z-30 flex gap-3">
+      <div className="w-full z-30 flex flex-wrap justify-center gap-2 px-3 md:fixed md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:gap-3">
         <button
           type="button"
           onClick={toggleHappySad}
-          className="px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          className="px-3 md:px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
           style={{
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "11px",
+            fontSize: "10px",
             background: "#4a4a4a",
             color: "#fff",
             border: "3px solid #333",
@@ -78,10 +73,10 @@ export default function Home() {
         <button
           type="button"
           onClick={toggleHappyAngry}
-          className="px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          className="px-3 md:px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
           style={{
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "11px",
+            fontSize: "10px",
             background: "#7f2319",
             color: "#fff",
             border: "3px solid #5f1912",
@@ -93,10 +88,10 @@ export default function Home() {
         <button
           type="button"
           onClick={toggleHappyDelighted}
-          className="px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          className="px-3 md:px-4 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
           style={{
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "11px",
+            fontSize: "10px",
             background: "#5c4a10",
             color: "#fff",
             border: "3px solid #45370c",
@@ -108,10 +103,10 @@ export default function Home() {
         <button
           type="button"
           onClick={swapExpression}
-          className="px-6 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
+          className="px-4 md:px-6 py-3 rounded-xl font-bold tracking-wide active:scale-95 transition-transform"
           style={{
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "12px",
+            fontSize: "11px",
             background: "#8B6914",
             color: "#fff",
             border: "3px solid #6f530f",
@@ -119,6 +114,11 @@ export default function Home() {
         >
           SWAP EXPRESSION
         </button>
+      </div>
+
+      {/* Right - Chat */}
+      <div className="w-full md:w-[38%] md:min-w-[320px] md:max-w-[520px] flex flex-col p-3 md:p-6">
+        <Chat onEmotionChange={setEmotion} onTalkingChange={setIsTalking} />
       </div>
     </main>
   );
