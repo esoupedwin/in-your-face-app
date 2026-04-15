@@ -850,8 +850,8 @@ export default function Face({ emotion, isTalking }: FaceProps) {
 
   return (
     <div
-      className="w-full h-full flex items-center justify-center"
-      style={{ minHeight: 500 }}
+      className="w-full h-full flex items-start md:items-center justify-center pt-12 md:pt-0"
+      style={{ minHeight: "clamp(320px, 42vh, 500px)" }}
     >
       <svg
         viewBox={`0 0 ${W} ${H}`}

@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "mem_mnys95tl_tvazma",
+      "userId": "local-user",
+      "type": "profile",
+      "content": "User's name is Edwin.",
+      "sourceMessage": "My name is Edwin",
+      "confidence": 0.95,
+      "importance": 5,
+      "sensitivity": "low",
+      "status": "active",
+      "createdAt": "2026-04-14T15:35:10.521Z",
+      "lastUsedAt": "2026-04-15T14:53:41.795Z",
+      "expiresAt": null
+    },
+    {
+      "id": "mem_mnysakg6_wksdkl",
+      "userId": "local-user",
+      "type": "preference",
+      "content": "User likes hiking.",
+      "sourceMessage": "I like hiking",
+      "confidence": 0.82,
+      "importance": 3,
+      "sensitivity": "low",
+      "status": "active",
+      "createdAt": "2026-04-14T15:36:16.134Z",
+      "lastUsedAt": "2026-04-15T14:53:41.795Z",
+      "expiresAt": null
+    }
+  ]
+}

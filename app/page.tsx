@@ -38,12 +38,12 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen w-full flex flex-col md:flex-row items-stretch relative gap-3 pb-6 md:pb-28"
+      className="w-full h-[100dvh] md:min-h-screen flex flex-col md:flex-row items-stretch relative gap-0 md:gap-3 overflow-hidden md:overflow-visible pb-4 md:pb-28"
       style={{ background: "#FFC107" }}
     >
       {/* Left - Face */}
       <div
-        className="w-full md:flex-1 flex items-center justify-center p-1 min-h-[42vh] md:min-h-0"
+        className="w-full md:flex-1 flex items-center justify-center p-1 min-h-[24vh] md:min-h-0"
         style={{ minWidth: 0 }}
       >
         <Face emotion={emotion} isTalking={isTalking} />
@@ -129,7 +129,7 @@ export default function Home() {
       </div>
 
       {/* Right - Chat */}
-      <div className="w-full md:w-[38%] md:min-w-[320px] md:max-w-[520px] flex flex-col p-3 md:p-6">
+      <div className="w-full md:w-[38%] md:min-w-[320px] md:max-w-[520px] flex-1 min-h-0 flex flex-col px-3 pt-0 pb-16 -mt-80 md:mt-0 md:p-6">
         <Chat onEmotionChange={setEmotion} onTalkingChange={setIsTalking} />
       </div>
     </main>

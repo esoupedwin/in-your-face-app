@@ -408,7 +408,7 @@ export default function Chat({ onEmotionChange, onTalkingChange }: ChatProps) {
   }, []);
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div className="flex flex-col h-full min-h-0 gap-3">
       <button
         type="button"
         onClick={() => setIsAutoInitiativeEnabled((prev) => !prev)}
@@ -427,12 +427,11 @@ export default function Chat({ onEmotionChange, onTalkingChange }: ChatProps) {
 
       <div
         ref={transcriptRef}
-        className="rounded-2xl p-4 overflow-y-auto"
+        className="rounded-2xl p-4 overflow-y-auto flex-1 min-h-[300px]"
         style={{
           background: "#FFE782",
           border: "3px solid #D2AA22",
-          minHeight: 220,
-          maxHeight: "48vh",
+          maxHeight: "none",
         }}
       >
         <p
@@ -487,7 +486,7 @@ export default function Chat({ onEmotionChange, onTalkingChange }: ChatProps) {
       </div>
 
       <div
-        className="rounded-2xl p-4 flex flex-col gap-3"
+        className="rounded-2xl p-3 md:p-4 flex flex-col gap-3"
         style={{ background: "#FFF8C5", border: "3px solid #E8C840" }}
       >
         <div className="flex items-center justify-between gap-2">
